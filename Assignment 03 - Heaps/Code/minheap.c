@@ -200,11 +200,11 @@ void MinHeapComparison(heapPtr headPtr, int size, int No)
     int right = 2 * No + 1;
 
     // If left child is smaller than root
-    if (left < size && MoveToNode(headPtr, left)->data < MoveToNode(headPtr, smallest)->data)
+    if (left <= size && MoveToNode(headPtr, left)->data < MoveToNode(headPtr, smallest)->data)
     {
         smallest = left;
     }
-    if (right < size && MoveToNode(headPtr, right)->data < MoveToNode(headPtr, smallest)->data)
+    if (right <= size && MoveToNode(headPtr, right)->data < MoveToNode(headPtr, smallest)->data)
     {
         smallest = right;
     }

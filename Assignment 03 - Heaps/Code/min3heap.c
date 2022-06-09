@@ -7,12 +7,12 @@ typedef struct HeapNode
     struct HeapNode *nextPtr;
 } heapnode;
 
-// ­«·s©w¸qµ²ºc¤§¤@¶¥«ü¼Ðªº¦WºÙ
+// é‡æ–°å®šç¾©çµæ§‹ä¹‹ä¸€éšŽæŒ‡æ¨™çš„åç¨±
 typedef struct HeapNode *heapPtr;
 
-// ´¡¤J¦ê¦C§ÀºÝ
+// æ’å…¥ä¸²åˆ—å°¾ç«¯
 void insertlist(heapPtr *nodePtr, int info);
-// Åã¥Ü¦ê¦Cªº©Ò¦³¤¸¯À
+// é¡¯ç¤ºä¸²åˆ—çš„æ‰€æœ‰å…ƒç´ 
 void printlist(heapPtr currentPtr);
 //
 int nodecount(heapPtr currentPtr);
@@ -24,6 +24,8 @@ void swap(int *num1, int *num2);
 void MinHeapComparison(heapPtr headPtr, int size, int No);
 //
 void deleteHeapNode(heapPtr headPtr, int size, int No);
+//
+void insertHeapNode(heapPtr headPtr, int size, int input);
 
 int main()
 {
@@ -31,8 +33,8 @@ int main()
     int tempNum = 0;
     heapPtr heapNodeHead = NULL;
 
-    printf("½Ð¿é¤J Heap ªº Level-Order Traversal\n");
-    printf("(½Ð¥H¡uªÅ®æ¡v°Ï¹j¦U­Ónode)\n-> ");
+    printf("è«‹è¼¸å…¥ Heap çš„ Level-Order Traversal\n");
+    printf("(è«‹ä»¥ã€Œç©ºæ ¼ã€å€éš”å„å€‹node)\n-> ");
 
     while ((value = getchar()) != '\n')
     {
@@ -68,64 +70,91 @@ int main()
     printf("Minimum 3-Heap\n");
     printlist(heapNodeHead);
 
-    int deletNode;
+    int modeNum, input;
 
-    for (size_t i = 0; i < 3; i++)
+    printf("Choose the function : (1) insert (2) delete (3) exit\n-> ");
+    scanf("%d", &modeNum);
+
+    while (modeNum != 3)
     {
-        printf("Choose the node you what to remove (1 ~ %d)\n-> ", nodecount(heapNodeHead));
-        scanf("%d", &deletNode);
+        switch (modeNum)
+        {
+        case 1:
+            printf("Please enter the number you want to insert\n-> ");
+            scanf("%d", &input);
 
-        deleteHeapNode(heapNodeHead, nodecount(heapNodeHead), deletNode);
-        printf("After delete the node NO.%d\n", deletNode);
-        printlist(heapNodeHead);
-        printf("\n");
+            insertHeapNode(heapNodeHead, nodecount(heapNodeHead), input);
+            printf("After insert %d to heap\n", input);
+            printlist(heapNodeHead);
+            printf("\n");
+
+            printf("Choose the function : (1) insert (2) delete (3) exit\n-> ");
+            scanf("%d", &modeNum);
+            break;
+
+        case 2:
+            printf("Choose the node you what to remove (1 ~ %d)\n-> ", nodecount(heapNodeHead));
+            scanf("%d", &input);
+
+            deleteHeapNode(heapNodeHead, nodecount(heapNodeHead), input);
+            printf("After delete the node NO.%d\n", input);
+            printlist(heapNodeHead);
+            printf("\n");
+
+            printf("Choose the function : (1) insert (2) delete (3) exit\n-> ");
+            scanf("%d", &modeNum);
+            break;
+
+        case 3:
+            break;
+        }
     }
 }
 
 void insertlist(heapPtr *headPtr, int info)
 {
-    // «Ø¥ß·sªº¸`ÂI
+    // å»ºç«‹æ–°çš„ç¯€é»ž
     heapPtr newPtr = (heapPtr)malloc(sizeof(heapPtr));
 
-    // °O¾ÐÅé¾Ö¦³¨¬°÷ªºªÅ¶¡
+    // è¨˜æ†¶é«”æ“æœ‰è¶³å¤ çš„ç©ºé–“
     if (newPtr != NULL)
     {
-        // ±N±ý´¡¤Jªº¦r¤¸¦s¤J¸`ÂI¤¤
+        // å°‡æ¬²æ’å…¥çš„å­—å…ƒå­˜å…¥ç¯€é»žä¸­
         newPtr->data = info;
-        // ±N«ü¦V¤Uªº¸`ÂIªº«ü¼Ð«ü¬°ªÅ
+        // å°‡æŒ‡å‘ä¸‹çš„ç¯€é»žçš„æŒ‡æ¨™æŒ‡ç‚ºç©º
         newPtr->nextPtr = NULL;
 
-        // ±N¦ê¦Cªº­º¦ì«ü¼Ð³]¬°·í«e«ü¼Ð¦ì¸m
+        // å°‡ä¸²åˆ—çš„é¦–ä½æŒ‡æ¨™è¨­ç‚ºç•¶å‰æŒ‡æ¨™ä½ç½®
         heapPtr currentPtr = *headPtr;
-        // ©w¸q«e­Ó«ü¼Ð¬°ªÅ
+        // å®šç¾©å‰å€‹æŒ‡æ¨™ç‚ºç©º
         heapPtr previousPtr = NULL;
 
-        // ±N·í«e«ü¼Ð¦ì¸m²¾°Ê¦Ü¦ê¦C³Ì§ÀºÝ
+        // å°‡ç•¶å‰æŒ‡æ¨™ä½ç½®ç§»å‹•è‡³ä¸²åˆ—æœ€å°¾ç«¯
         while (currentPtr != NULL)
         {
-            // ±N«e­Ó«ü¼Ðªº¦ì¸m³]¬°·í«e«ü¼Ð
+            // å°‡å‰å€‹æŒ‡æ¨™çš„ä½ç½®è¨­ç‚ºç•¶å‰æŒ‡æ¨™
             previousPtr = currentPtr;
-            // ±N·í«e«ü¼Ð¦ì¸m¦V¤U­Ó¸`ÂI²¾°Ê
+            // å°‡ç•¶å‰æŒ‡æ¨™ä½ç½®å‘ä¸‹å€‹ç¯€é»žç§»å‹•
             currentPtr = currentPtr->nextPtr;
         }
 
-        // ­Y¦ê¦C¤¤¨S¦³¥b­Ó¤¸¯À
+        // è‹¥ä¸²åˆ—ä¸­æ²’æœ‰åŠå€‹å…ƒç´ 
         if (previousPtr == NULL)
         {
-            // ±N·s¸`ÂI©Ò«ü¦Vªº¤U­ÓªÌ¼Ð¦ì¸m«ü¦VÅª¤J¦ê¦CªºÀY(NULL)
+            // å°‡æ–°ç¯€é»žæ‰€æŒ‡å‘çš„ä¸‹å€‹è€…æ¨™ä½ç½®æŒ‡å‘è®€å…¥ä¸²åˆ—çš„é ­(NULL)
             newPtr->nextPtr = *headPtr;
-            // ±N¤¸¦ê¦Cªº¦ì¸m«ü¶µ·s¸`ÂI
+            // å°‡å…ƒä¸²åˆ—çš„ä½ç½®æŒ‡é …æ–°ç¯€é»ž
             *headPtr = newPtr;
         }
         else
         {
-            // ±N«e¤@­Ó«ü¼Ðªº©Ò«ü¦Vªº¤U­Ó¦ì¸m«ü¦V·s¼Wªº¸`ÂI
+            // å°‡å‰ä¸€å€‹æŒ‡æ¨™çš„æ‰€æŒ‡å‘çš„ä¸‹å€‹ä½ç½®æŒ‡å‘æ–°å¢žçš„ç¯€é»ž
             previousPtr->nextPtr = newPtr;
-            // ±N·s¸`ÂIªº©Ò«ü¦Vªº¤U­Ó«ü¼Ð«ü¦V·í«e¸`ÂI
+            // å°‡æ–°ç¯€é»žçš„æ‰€æŒ‡å‘çš„ä¸‹å€‹æŒ‡æ¨™æŒ‡å‘ç•¶å‰ç¯€é»ž
             newPtr->nextPtr = currentPtr;
         }
     }
-    // °O¾ÐÅéªÅ¶¡¥ÎºÉ
+    // è¨˜æ†¶é«”ç©ºé–“ç”¨ç›¡
     else
     {
         printf("%d not inserted. No memory available.\n", info);
@@ -134,19 +163,19 @@ void insertlist(heapPtr *headPtr, int info)
 
 void printlist(heapPtr currentPtr)
 {
-    // ÀË¬d·í«e¦ê¦C¬O§_¬°ªÅ
+    // æª¢æŸ¥ç•¶å‰ä¸²åˆ—æ˜¯å¦ç‚ºç©º
     if (currentPtr == NULL)
     {
         puts("The stack is empty.\n");
     }
     else
     {
-        // ±N·í«e¦ê¦C¦ì¸m©¹«á²¾ª½¨ì¨ì¹F§ÀºÝ
+        // å°‡ç•¶å‰ä¸²åˆ—ä½ç½®å¾€å¾Œç§»ç›´åˆ°åˆ°é”å°¾ç«¯
         while (currentPtr != NULL)
         {
-            // ¿é¥X¸Ó¦ê¦C¤¸¯À
+            // è¼¸å‡ºè©²ä¸²åˆ—å…ƒç´ 
             printf("%d ", currentPtr->data);
-            // ±N·í«e¦ê¦C¦ì¸m©¹«á²¾
+            // å°‡ç•¶å‰ä¸²åˆ—ä½ç½®å¾€å¾Œç§»
             currentPtr = currentPtr->nextPtr;
         }
         printf("\n");
@@ -155,7 +184,7 @@ void printlist(heapPtr currentPtr)
 
 int nodecount(heapPtr currentPtr)
 {
-    // ÀË¬d·í«e¦ê¦C¬O§_¬°ªÅ
+    // æª¢æŸ¥ç•¶å‰ä¸²åˆ—æ˜¯å¦ç‚ºç©º
     if (currentPtr == NULL)
     {
         return 0;
@@ -164,10 +193,10 @@ int nodecount(heapPtr currentPtr)
     {
         int nodeNum = 0;
 
-        // ±N·í«e¦ê¦C¦ì¸m©¹«á²¾ª½¨ì¨ì¹F§ÀºÝ
+        // å°‡ç•¶å‰ä¸²åˆ—ä½ç½®å¾€å¾Œç§»ç›´åˆ°åˆ°é”å°¾ç«¯
         while (currentPtr != NULL)
         {
-            // ±N·í«e¦ê¦C¦ì¸m©¹«á²¾
+            // å°‡ç•¶å‰ä¸²åˆ—ä½ç½®å¾€å¾Œç§»
             currentPtr = currentPtr->nextPtr;
             nodeNum++;
         }
@@ -180,7 +209,7 @@ heapPtr MoveToNode(heapPtr nodePtr, int num)
 {
     for (size_t i = 0; i < num - 1; i++)
     {
-        // ±N·í«e¦ê¦C¦ì¸m©¹«á²¾
+        // å°‡ç•¶å‰ä¸²åˆ—ä½ç½®å¾€å¾Œç§»
         nodePtr = nodePtr->nextPtr;
     }
 
@@ -202,15 +231,15 @@ void MinHeapComparison(heapPtr headPtr, int size, int No)
     int right = 3 * No + 1;
 
     // If left child is smaller than root
-    if (left < size && MoveToNode(headPtr, left)->data < MoveToNode(headPtr, smallest)->data)
+    if (left <= size && MoveToNode(headPtr, left)->data < MoveToNode(headPtr, smallest)->data)
     {
         smallest = left;
     }
-    if (left < size && MoveToNode(headPtr, medium)->data < MoveToNode(headPtr, smallest)->data)
+    if (medium <= size && MoveToNode(headPtr, medium)->data < MoveToNode(headPtr, smallest)->data)
     {
         smallest = medium;
     }
-    if (right < size && MoveToNode(headPtr, right)->data < MoveToNode(headPtr, smallest)->data)
+    if (right <= size && MoveToNode(headPtr, right)->data < MoveToNode(headPtr, smallest)->data)
     {
         smallest = right;
     }
@@ -228,4 +257,14 @@ void deleteHeapNode(heapPtr headPtr, int size, int No)
     free(MoveToNode(headPtr, size));
 
     MinHeapComparison(headPtr, size - 1, No);
+}
+
+void insertHeapNode(heapPtr headPtr, int size, int input)
+{
+    insertlist(&headPtr, input);
+
+    for (int i = size; i > 0; i--)
+    {
+        MinHeapComparison(headPtr, size + 1, i);
+    }
 }

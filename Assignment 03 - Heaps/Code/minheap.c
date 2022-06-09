@@ -24,6 +24,8 @@ void swap(int *num1, int *num2);
 void MinHeapComparison(heapPtr headPtr, int size, int No);
 //
 void deleteHeapNode(heapPtr headPtr, int size, int No);
+//
+void insertHeapNode(heapPtr headPtr, int size, int input);
 
 int main()
 {
@@ -66,18 +68,46 @@ int main()
 
     printf("Min Heap\n");
     printlist(heapNodeHead);
+    printf("\n");
 
-    int deletNode;
+    int modeNum, input;
 
-    for (size_t i = 0; i < 3; i++)
+    printf("Choose the function : (1) insert (2) delete (3) exit\n-> ");
+    scanf("%d", &modeNum);
+
+    while (modeNum != 3)
     {
-        printf("Choose the node you what to remove (1 ~ %d)\n-> ", nodecount(heapNodeHead));
-        scanf("%d", &deletNode);
+        switch (modeNum)
+        {
+        case 1:
+            printf("Please enter the number you want to insert\n-> ");
+            scanf("%d", &input);
 
-        deleteHeapNode(heapNodeHead, nodecount(heapNodeHead), deletNode);
-        printf("After delete the node NO.%d\n", deletNode);
-        printlist(heapNodeHead);
-        printf("\n");
+            insertHeapNode(heapNodeHead, nodecount(heapNodeHead), input);
+            printf("After insert %d to heap\n", input);
+            printlist(heapNodeHead);
+            printf("\n");
+
+            printf("Choose the function : (1) insert (2) delete (3) exit\n-> ");
+            scanf("%d", &modeNum);
+            break;
+
+        case 2:
+            printf("Choose the node you what to remove (1 ~ %d)\n-> ", nodecount(heapNodeHead));
+            scanf("%d", &input);
+
+            deleteHeapNode(heapNodeHead, nodecount(heapNodeHead), input);
+            printf("After delete the node NO.%d\n", input);
+            printlist(heapNodeHead);
+            printf("\n");
+
+            printf("Choose the function : (1) insert (2) delete (3) exit\n-> ");
+            scanf("%d", &modeNum);
+            break;
+
+        case 3:
+            break;
+        }
     }
 }
 
@@ -222,4 +252,14 @@ void deleteHeapNode(heapPtr headPtr, int size, int No)
     free(MoveToNode(headPtr, size));
 
     MinHeapComparison(headPtr, size - 1, No);
+}
+
+void insertHeapNode(heapPtr headPtr, int size, int input)
+{
+    insertlist(&headPtr, input);
+
+    for (int i = size; i > 0; i--)
+    {
+        MinHeapComparison(headPtr, size + 1, i);
+    }
 }

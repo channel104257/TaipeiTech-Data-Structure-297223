@@ -1,53 +1,67 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <windows.h> //for timeing
 
+// å®šç¾©ç¯€é»çµæ§‹
 typedef struct HeapNode
 {
     int data;
     struct HeapNode *nextPtr;
 } heapnode;
 
-// ­«·s©w¸qµ²ºc¤§¤@¶¥«ü¼Ğªº¦WºÙ
+// é‡æ–°å®šç¾©çµæ§‹ä¹‹ä¸€éšæŒ‡æ¨™çš„åç¨±
 typedef struct HeapNode *heapPtr;
 
-// ´¡¤J¦ê¦C§Àºİ
+// æ’å…¥ä¸²åˆ—å°¾ç«¯
 void insertlist(heapPtr *nodePtr, int info);
-// Åã¥Ü¦ê¦Cªº©Ò¦³¤¸¯À
+// é¡¯ç¤ºä¸²åˆ—çš„æ‰€æœ‰å…ƒç´ 
 void printlist(heapPtr currentPtr);
-//
+// è¨ˆç®—ç•¶å‰ç¯€é»æ•¸é‡
 int nodecount(heapPtr currentPtr);
-//
+// ç§»å‹•å †ç©æŒ‡æ¨™ä½ç½®
 heapPtr MoveToNode(heapPtr nodePtr, int num);
-//
+// äº¤æ›
 void swap(int *num1, int *num2);
-//
+// æœ€å°å †ç©æ¯”è¼ƒ
 void MinHeapComparison(heapPtr headPtr, int size, int No);
-//
+// å †ç©æ’åºæ³•
 void HeapSort(heapPtr headPtr, int size);
 
+// ä¸»ç¨‹å¼é€²å…¥é»
 int main()
 {
+    // å®šç¾©è¼¸å…¥å­—å…ƒ
     char value;
+    // å®šç¾©å­—å…ƒæ•¸é‡æ——æ¨™
     int tempNum = 0;
+    // å®šç¾©é¦–ä½å †ç©ç¯€é»
     heapPtr heapNodeHead = NULL;
+    // set up the variable for timing
+    LARGE_INTEGER t1, t2, tc;
 
-    printf("½Ğ¿é¤J Heap ªº Level-Order Traversal\n");
-    printf("(½Ğ¥H¡uªÅ®æ¡v°Ï¹j¦U­Ónode)\n-> ");
+    printf("è«‹è¼¸å…¥ Heap çš„ Level-Order Traversal\n");
+    printf("(è«‹ä»¥ã€Œç©ºæ ¼ã€å€éš”å„å€‹node)\n-> ");
 
+    // é€å­—è®€å–è¼¸å…¥å­—å…ƒç›´åˆ°'\n'
     while ((value = getchar()) != '\n')
     {
         switch (value)
         {
+        // ä»¥ç©ºç™½é–“éš”è¡¨è¼¸å…¥å®Œç•¢
         case ' ':
         {
+            // å°‡è©²æ•¸å­—è¼¸å…¥åˆå§‹å †ç©
             insertlist(&heapNodeHead, tempNum);
+            // é‡è£½å­—å…ƒæ•¸é‡æ——æ¨™
             tempNum = 0;
             break;
         }
         default:
         {
+            // è‹¥è¼¸å…¥ç‚ºæ•¸å­—
             if (value >= 48 && value <= 57)
             {
+                // å°‡å·²è®€å–çš„æ•¸å­—ç´¯åŠ 
                 tempNum = tempNum * 10 + (value - 48);
             }
             break;
@@ -55,67 +69,90 @@ int main()
         }
     }
 
+    // å°‡æœ€å¾Œçš„æ•¸å­—æ¨å…¥åˆå§‹å †ç©
     insertlist(&heapNodeHead, tempNum);
 
+    // è¼¸å‡ºåˆå§‹å †ç©
     printlist(heapNodeHead);
 
-    for (int i = nodecount(heapNodeHead) / 2; i > 0; i--)
+    // é€ç¯€é»è¨ªå•é€²è¡Œ Buttom-up
+    for (int i = nodecount(heapNodeHead); i > 0; i--)
     {
         MinHeapComparison(heapNodeHead, nodecount(heapNodeHead), i);
     }
 
+    // è¼¸å‡ºæœ€å°å †ç©
+    printf("\n");
     printf("Min Heap\n");
     printlist(heapNodeHead);
 
+    // check the tick frequency
+    QueryPerformanceFrequency(&tc);
+
+    // start timing
+    QueryPerformanceCounter(&t1);
+
     HeapSort(heapNodeHead, nodecount(heapNodeHead));
+    
+    // stop timing
+    QueryPerformanceCounter(&t2);
+
+    // calculate elapsed time by finding difference (end - begin) and
+    // dividing the difference by CLOCKS_PER_SEC to convert to seconds
+    double time = ((double)(t2.QuadPart - t1.QuadPart) / (double)tc.QuadPart) * 1000;
+
     printf("After HeapSort\n");
     printlist(heapNodeHead);
+    // æ­·ç¶“æ™‚é–“
+    printf("The elapsed time is %lf ms\n", time);
+    printf("\n");
 }
 
+// æ’å…¥ç¯€é»
 void insertlist(heapPtr *headPtr, int info)
 {
-    // «Ø¥ß·sªº¸`ÂI
+    // å»ºç«‹æ–°çš„ç¯€é»
     heapPtr newPtr = (heapPtr)malloc(sizeof(heapPtr));
 
-    // °O¾ĞÅé¾Ö¦³¨¬°÷ªºªÅ¶¡
+    // è¨˜æ†¶é«”æ“æœ‰è¶³å¤ çš„ç©ºé–“
     if (newPtr != NULL)
     {
-        // ±N±ı´¡¤Jªº¦r¤¸¦s¤J¸`ÂI¤¤
+        // å°‡æ¬²æ’å…¥çš„å­—å…ƒå­˜å…¥ç¯€é»ä¸­
         newPtr->data = info;
-        // ±N«ü¦V¤Uªº¸`ÂIªº«ü¼Ğ«ü¬°ªÅ
+        // å°‡æŒ‡å‘ä¸‹çš„ç¯€é»çš„æŒ‡æ¨™æŒ‡ç‚ºç©º
         newPtr->nextPtr = NULL;
 
-        // ±N¦ê¦Cªº­º¦ì«ü¼Ğ³]¬°·í«e«ü¼Ğ¦ì¸m
+        // å°‡ä¸²åˆ—çš„é¦–ä½æŒ‡æ¨™è¨­ç‚ºç•¶å‰æŒ‡æ¨™ä½ç½®
         heapPtr currentPtr = *headPtr;
-        // ©w¸q«e­Ó«ü¼Ğ¬°ªÅ
+        // å®šç¾©å‰å€‹æŒ‡æ¨™ç‚ºç©º
         heapPtr previousPtr = NULL;
 
-        // ±N·í«e«ü¼Ğ¦ì¸m²¾°Ê¦Ü¦ê¦C³Ì§Àºİ
+        // å°‡ç•¶å‰æŒ‡æ¨™ä½ç½®ç§»å‹•è‡³ä¸²åˆ—æœ€å°¾ç«¯
         while (currentPtr != NULL)
         {
-            // ±N«e­Ó«ü¼Ğªº¦ì¸m³]¬°·í«e«ü¼Ğ
+            // å°‡å‰å€‹æŒ‡æ¨™çš„ä½ç½®è¨­ç‚ºç•¶å‰æŒ‡æ¨™
             previousPtr = currentPtr;
-            // ±N·í«e«ü¼Ğ¦ì¸m¦V¤U­Ó¸`ÂI²¾°Ê
+            // å°‡ç•¶å‰æŒ‡æ¨™ä½ç½®å‘ä¸‹å€‹ç¯€é»ç§»å‹•
             currentPtr = currentPtr->nextPtr;
         }
 
-        // ­Y¦ê¦C¤¤¨S¦³¥b­Ó¤¸¯À
+        // è‹¥ä¸²åˆ—ä¸­æ²’æœ‰åŠå€‹å…ƒç´ 
         if (previousPtr == NULL)
         {
-            // ±N·s¸`ÂI©Ò«ü¦Vªº¤U­ÓªÌ¼Ğ¦ì¸m«ü¦VÅª¤J¦ê¦CªºÀY(NULL)
+            // å°‡æ–°ç¯€é»æ‰€æŒ‡å‘çš„ä¸‹å€‹è€…æ¨™ä½ç½®æŒ‡å‘è®€å…¥ä¸²åˆ—çš„é ­(NULL)
             newPtr->nextPtr = *headPtr;
-            // ±N¤¸¦ê¦Cªº¦ì¸m«ü¶µ·s¸`ÂI
+            // å°‡å…ƒä¸²åˆ—çš„ä½ç½®æŒ‡é …æ–°ç¯€é»
             *headPtr = newPtr;
         }
         else
         {
-            // ±N«e¤@­Ó«ü¼Ğªº©Ò«ü¦Vªº¤U­Ó¦ì¸m«ü¦V·s¼Wªº¸`ÂI
+            // å°‡å‰ä¸€å€‹æŒ‡æ¨™çš„æ‰€æŒ‡å‘çš„ä¸‹å€‹ä½ç½®æŒ‡å‘æ–°å¢çš„ç¯€é»
             previousPtr->nextPtr = newPtr;
-            // ±N·s¸`ÂIªº©Ò«ü¦Vªº¤U­Ó«ü¼Ğ«ü¦V·í«e¸`ÂI
+            // å°‡æ–°ç¯€é»çš„æ‰€æŒ‡å‘çš„ä¸‹å€‹æŒ‡æ¨™æŒ‡å‘ç•¶å‰ç¯€é»
             newPtr->nextPtr = currentPtr;
         }
     }
-    // °O¾ĞÅéªÅ¶¡¥ÎºÉ
+    // è¨˜æ†¶é«”ç©ºé–“ç”¨ç›¡
     else
     {
         printf("%d not inserted. No memory available.\n", info);
@@ -124,19 +161,19 @@ void insertlist(heapPtr *headPtr, int info)
 
 void printlist(heapPtr currentPtr)
 {
-    // ÀË¬d·í«e¦ê¦C¬O§_¬°ªÅ
+    // æª¢æŸ¥ç•¶å‰ä¸²åˆ—æ˜¯å¦ç‚ºç©º
     if (currentPtr == NULL)
     {
         puts("The stack is empty.\n");
     }
     else
     {
-        // ±N·í«e¦ê¦C¦ì¸m©¹«á²¾ª½¨ì¨ì¹F§Àºİ
+        // å°‡ç•¶å‰ä¸²åˆ—ä½ç½®å¾€å¾Œç§»ç›´åˆ°åˆ°é”å°¾ç«¯
         while (currentPtr != NULL)
         {
-            // ¿é¥X¸Ó¦ê¦C¤¸¯À
+            // è¼¸å‡ºè©²ä¸²åˆ—å…ƒç´ 
             printf("%d ", currentPtr->data);
-            // ±N·í«e¦ê¦C¦ì¸m©¹«á²¾
+            // å°‡ç•¶å‰ä¸²åˆ—ä½ç½®å¾€å¾Œç§»
             currentPtr = currentPtr->nextPtr;
         }
         printf("\n");
@@ -145,20 +182,22 @@ void printlist(heapPtr currentPtr)
 
 int nodecount(heapPtr currentPtr)
 {
-    // ÀË¬d·í«e¦ê¦C¬O§_¬°ªÅ
+    // æª¢æŸ¥ç•¶å‰ä¸²åˆ—æ˜¯å¦ç‚ºç©º
     if (currentPtr == NULL)
     {
         return 0;
     }
     else
     {
+        // å®šç¾©ç¯€é»æ•¸é‡
         int nodeNum = 0;
 
-        // ±N·í«e¦ê¦C¦ì¸m©¹«á²¾ª½¨ì¨ì¹F§Àºİ
+        // å°‡ç•¶å‰ä¸²åˆ—ä½ç½®å¾€å¾Œç§»ç›´åˆ°åˆ°é”å°¾ç«¯
         while (currentPtr != NULL)
         {
-            // ±N·í«e¦ê¦C¦ì¸m©¹«á²¾
+            // å°‡ç•¶å‰ä¸²åˆ—ä½ç½®å¾€å¾Œç§»
             currentPtr = currentPtr->nextPtr;
+            // ç¯€é»æ•¸é‡ +1
             nodeNum++;
         }
 
@@ -170,13 +209,14 @@ heapPtr MoveToNode(heapPtr nodePtr, int num)
 {
     for (size_t i = 0; i < num - 1; i++)
     {
-        // ±N·í«e¦ê¦C¦ì¸m©¹«á²¾
+        // å°‡ç•¶å‰ä¸²åˆ—ä½ç½®å¾€å¾Œç§»
         nodePtr = nodePtr->nextPtr;
     }
 
     return nodePtr;
 }
 
+// äº¤æ›
 void swap(int *num1, int *num2)
 {
     int temp = *num1;
@@ -186,32 +226,44 @@ void swap(int *num1, int *num2)
 
 void MinHeapComparison(heapPtr headPtr, int size, int No)
 {
+    //å®šç¾©æœ€å°ç¯€é»
     int smallest = No;
+    // å®šç¾© left child
     int left = 2 * No;
+    // å®šç¾© left child
     int right = 2 * No + 1;
 
-    // If left child is smaller than root
-    if (left < size && MoveToNode(headPtr, left)->data < MoveToNode(headPtr, smallest)->data)
+    // è‹¥ left child å°æ–¼æœ€å°ç¯€é»çš„å€¼
+    if (left <= size && MoveToNode(headPtr, left)->data < MoveToNode(headPtr, smallest)->data)
     {
+        // æœ€å°ç¯€é»ç‚º left child
         smallest = left;
     }
-    if (right < size && MoveToNode(headPtr, right)->data < MoveToNode(headPtr, smallest)->data)
+    // è‹¥ right child å°æ–¼æœ€å°ç¯€é»çš„å€¼
+    if (right <= size && MoveToNode(headPtr, right)->data < MoveToNode(headPtr, smallest)->data)
     {
+        // æœ€å°ç¯€é»ç‚º right child
         smallest = right;
     }
+    // è‹¥æœ€å°ç¯€é»ä¸ç‚º root
     if (smallest != No)
     {
+        // äº¤æ› root & æœ€å°ç¯€é»
         swap(&MoveToNode(headPtr, No)->data, &MoveToNode(headPtr, smallest)->data);
+        // å‘ä¸‹å±¤å­æ¨¹éè¿´
         MinHeapComparison(headPtr, size, smallest);
     }
 }
 
+// å †ç©æ’åºæ³•
 void HeapSort(heapPtr headPtr, int size)
 {
     for (size_t i = 1; i <= size; i++)
     {
+        // å°‡æ¥µå€¼èˆ‡ root å€¼äº¤æ›
         swap(&MoveToNode(headPtr, 1)->data, &MoveToNode(headPtr, size - i + 1)->data);
 
+        // ç¸®æ¸›å€é–“é€²è¡Œheapify
         MinHeapComparison(headPtr, size - i, 1);
     }
 }
